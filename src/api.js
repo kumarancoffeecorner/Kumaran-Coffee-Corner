@@ -2,7 +2,7 @@ import axios from 'axios';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 
 // Step 1: Set the Base URL
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://kumarancoffeecorner.tech/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.kumarancoffeecorner.tech/api';
 
 const API = axios.create({
     baseURL: BASE_URL,
