@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+body {
+  background-color: #fdf5e6; /* Soft cream background like the image */
+}
+
+/* Custom button styles to match the image */
+.btn-call {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.btn-whatsapp {
+  background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+html, body {
+  overflow-x: hidden;
+  scrollbar-gutter: stable; /* Browser difference-ai idhu fix pannum */
+}
