@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import API, { getImageUrl, hubConnection } from '../api';
+import Swal from 'sweetalert2';
 import {
   Trash2, Edit, Plus, X, MapPin, Coffee, ChevronLeft, Users, ShieldAlert,
   ShoppingBag, History, Phone, Radar, TrendingUp, Calendar, Image as ImageIcon,
@@ -137,18 +138,52 @@ const AdminPanel = ({ exit }) => {
       setIsShopOpen(newState);
       // alert(`Shop status updated to: ${newState ? 'OPEN' : 'CLOSED'}`);
     } catch (err) {
-      alert("Failed to update shop status.");
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to update shop status.',
+        icon: 'error',
+        confirmButtonColor: '#e11d48',
+        background: '#0f172a',
+        color: '#fff'
+      });
     }
   };
 
   // 🔥 Review Delete Logic
   const handleDeleteReview = async (id) => {
-    if (window.confirm("Delete this review permanently?")) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "Delete this review permanently?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#334155',
+      confirmButtonText: 'Yes, delete it!',
+      background: '#0f172a',
+      color: '#fff'
+    });
+
+    if (result.isConfirmed) {
       try {
         await API.delete(`/Review/${id}`);
         setReviews(reviews.filter(r => r.id !== id));
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Review has been removed.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false,
+          background: '#0f172a',
+          color: '#fff'
+        });
       } catch (err) {
-        alert("Failed to delete review.");
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to delete review.',
+          icon: 'error',
+          background: '#0f172a',
+          color: '#fff'
+        });
       }
     }
   };
@@ -168,7 +203,13 @@ const AdminPanel = ({ exit }) => {
   // Itemized PDF Export
   const exportToPDF = () => {
     const filtered = orders.filter(o => o.status === 'Delivered' && o.isBroadcasted === true && getLocalDateHelper(o.orderDate) === filterDate);
-    if (filtered.length === 0) return alert("No sales found for this date!");
+    if (filtered.length === 0) return Swal.fire({
+      title: 'No Sales',
+      text: 'No sales found for this date!',
+      icon: 'info',
+      background: '#0f172a',
+      color: '#fff'
+    });
 
     const printWindow = window.open('', '_blank');
     const totalRevenue = filtered.reduce((s, o) => s + (o.items?.reduce((st, i) => st + (i.price * i.quantity), 0) + 30), 0);
@@ -269,7 +310,13 @@ const AdminPanel = ({ exit }) => {
       fetchData();
     } catch (err) {
       console.error("Upload Error Details:", err.response?.data);
-      alert("Error: " + (err.response?.data?.error?.message || "Check network/settings"));
+      Swal.fire({
+        title: 'Save Failed',
+        text: err.response?.data?.error?.message || "Check network/settings",
+        icon: 'error',
+        background: '#0f172a',
+        color: '#fff'
+      });
     }
     setLoading(false);
   };
@@ -285,18 +332,61 @@ const AdminPanel = ({ exit }) => {
       await API.patch(`/Order/${id}/broadcast`);
       // alert("Broadcasted to Delivery Partners!");
       fetchOrdersOnly();
-    } catch (err) { alert("Broadcast Failed!"); }
+      Swal.fire({
+        title: 'Broadcasted!',
+        text: 'Order sent to all partners.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+        background: '#0f172a',
+        color: '#fff'
+      });
+    } catch (err) {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Broadcast Failed!',
+        icon: 'error',
+        background: '#0f172a',
+        color: '#fff'
+      });
+    }
   };
 
   // 🔥 REJECT & DELETE ORDER LOGIC
   const handleDeleteOrder = async (id) => {
-    if (window.confirm("Are you sure you want to REJECT and DELETE this order?")) {
+    const result = await Swal.fire({
+      title: 'Reject Order?',
+      text: "Are you sure you want to REJECT and DELETE this order?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#334155',
+      confirmButtonText: 'Yes, reject it!',
+      background: '#0f172a',
+      color: '#fff'
+    });
+
+    if (result.isConfirmed) {
       try {
         await API.delete(`/Order/${id}`);
-        // alert("Order Rejected and Removed!");
         fetchOrdersOnly();
+        Swal.fire({
+          title: 'Rejected!',
+          text: 'Order has been removed.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false,
+          background: '#0f172a',
+          color: '#fff'
+        });
       } catch (err) {
-        alert("Failed to reject order. Try again.");
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to reject order. Try again.',
+          icon: 'error',
+          background: '#0f172a',
+          color: '#fff'
+        });
       }
     }
   };
@@ -424,7 +514,22 @@ const AdminPanel = ({ exit }) => {
               <div className="flex gap-2">
                 <button onClick={() => copyText(staff.username, staff.id)} className="p-2.5 bg-white/5 text-blue-500 rounded-lg">{copiedId === staff.id ? <Check size={12} /> : <Copy size={12} />}</button>
                 {staff.role !== 'Admin' ? (
-                  <button onClick={async () => { if (window.confirm("Delete Staff?")) { await API.delete(`/Staff/${staff.id}`); fetchData(); } }} className="p-2.5 bg-white/5 text-red-500 rounded-lg hover:bg-red-600 active:text-white transition-all"><Trash2 size={12} /></button>
+                  <button onClick={async () => {
+                    const result = await Swal.fire({
+                      title: 'Delete Staff?',
+                      text: "Remove this staff member permanently?",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#e11d48',
+                      cancelButtonColor: '#334155',
+                      background: '#0f172a',
+                      color: '#fff'
+                    });
+                    if (result.isConfirmed) {
+                      await API.delete(`/Staff/${staff.id}`);
+                      fetchData();
+                    }
+                  }} className="p-2.5 bg-white/5 text-red-500 rounded-lg hover:bg-red-600 active:text-white transition-all"><Trash2 size={12} /></button>
                 ) : (
                   <div className="p-2.5 bg-white/5 text-gray-600 rounded-lg"><ShieldAlert size={12} /></div>
                 )}
@@ -453,7 +558,22 @@ const AdminPanel = ({ exit }) => {
               </div>
               <div className="flex gap-1.5">
                 <button onClick={() => { setEditingItem(item); activeTab === 'menu' ? setMenuForm(item) : setBranchForm(item); setShowModal(true); }} className="p-2.5 bg-white/5 text-blue-500 rounded-lg hover:bg-blue-600 active:text-white transition-all"><Edit size={12} /></button>
-                <button onClick={async () => { if (window.confirm("Delete?")) { await API.delete(`/${activeTab}/${item.id}`); fetchData(); } }} className="p-2.5 bg-white/5 text-red-500 rounded-lg hover:bg-red-600 active:text-white transition-all"><Trash2 size={12} /></button>
+                <button onClick={async () => {
+                  const result = await Swal.fire({
+                    title: 'Delete?',
+                    text: `Are you sure you want to delete this ${activeTab}?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e11d48',
+                    cancelButtonColor: '#334155',
+                    background: '#0f172a',
+                    color: '#fff'
+                  });
+                  if (result.isConfirmed) {
+                    await API.delete(`/${activeTab}/${item.id}`);
+                    fetchData();
+                  }
+                }} className="p-2.5 bg-white/5 text-red-500 rounded-lg hover:bg-red-600 active:text-white transition-all"><Trash2 size={12} /></button>
               </div>
             </div>
           ))}

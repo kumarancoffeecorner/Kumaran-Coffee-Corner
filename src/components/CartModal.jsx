@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API from '../api';
+import Swal from 'sweetalert2';
 import {
   X, MapPin, Send, Loader2, Minus, Plus,
   Banknote, Smartphone, AlertCircle, CheckCircle2, QrCode, Camera, Copy, Check, Navigation
@@ -43,7 +44,12 @@ const CartModal = ({ cart, close, updateQuantity, clearCart }) => {
   };
 
   const captureLocation = () => {
-    if (!selectedBranch) return alert("Select branch first!");
+    if (!selectedBranch) return Swal.fire({
+      title: 'Branch Required',
+      text: "Select branch first!",
+      icon: 'info',
+      confirmButtonColor: '#e11d48'
+    });
     if (navigator.geolocation) {
       setLoading(true);
       navigator.geolocation.getCurrentPosition(
@@ -60,7 +66,15 @@ const CartModal = ({ cart, close, updateQuantity, clearCart }) => {
           else setDistanceError('');
           setLoading(false);
         },
-        (err) => { setLoading(false); alert("GPS Permission Denied."); },
+        (err) => {
+          setLoading(false);
+          Swal.fire({
+            title: 'GPS Error',
+            text: "GPS Permission Denied or Timeout.",
+            icon: 'error',
+            confirmButtonColor: '#e11d48'
+          });
+        },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     }
@@ -86,10 +100,20 @@ const CartModal = ({ cart, close, updateQuantity, clearCart }) => {
 
     // 🔥 RULE: Minimum order value check
     if (currentItemTotal < MINIMUM_ORDER_VALUE) {
-      return alert(`Minimum order must be ₹${MINIMUM_ORDER_VALUE}. Please add more items!`);
+      return Swal.fire({
+        title: 'Minimum Order',
+        text: `Minimum order must be ₹${MINIMUM_ORDER_VALUE}. Please add more items!`,
+        icon: 'warning',
+        confirmButtonColor: '#e11d48'
+      });
     }
 
-    if (!selectedBranch || !distance || distance > 4) return alert("Please verify delivery distance eligibility.");
+    if (!selectedBranch || !distance || distance > 4) return Swal.fire({
+      title: 'Eligibility Check',
+      text: "Please verify delivery distance eligibility.",
+      icon: 'warning',
+      confirmButtonColor: '#e11d48'
+    });
 
     setLoading(true);
     const capturedTotal = currentGrandTotal;
@@ -107,7 +131,12 @@ const CartModal = ({ cart, close, updateQuantity, clearCart }) => {
       clearCart();
     } catch (err) {
       console.error("Checkout detail error:", err.response?.data || err.message);
-      alert("Checkout failed: " + (err.response?.data?.message || err.message));
+      Swal.fire({
+        title: 'Checkout Failed',
+        text: err.response?.data?.message || err.message,
+        icon: 'error',
+        confirmButtonColor: '#e11d48'
+      });
     }
     setLoading(false);
   };

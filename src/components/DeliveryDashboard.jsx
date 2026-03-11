@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import API, { hubConnection } from '../api';
 import { Bike, CheckCircle, LogOut, MapPin, Phone, Clock, Radar, ShieldAlert } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const DeliveryDashboard = ({ logout }) => {
   const [orders, setOrders] = useState([]);
@@ -102,19 +103,59 @@ const DeliveryDashboard = ({ logout }) => {
         headers: { 'Content-Type': 'application/json' }
       });
       fetchOrders();
-      if (status === 'Delivered') alert("✅ Order Completed Successfully!");
-    } catch (err) { alert("Status Update Failed"); }
+      if (status === 'Delivered') {
+        Swal.fire({
+          title: 'Success!',
+          text: 'Order Completed Successfully!',
+          icon: 'success',
+          confirmButtonColor: '#e11d48',
+          background: '#0f172a',
+          color: '#fff',
+          timer: 3000
+        });
+      }
+    } catch (err) {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Status Update Failed',
+        icon: 'error',
+        confirmButtonColor: '#e11d48',
+        background: '#0f172a',
+        color: '#fff'
+      });
+    }
   };
 
   const handleAccept = async (id) => {
     const myName = localStorage.getItem('partnerName');
-    if (!myName) return alert("Please Login Again!");
+    if (!myName) return Swal.fire({
+      title: 'Auth Error',
+      text: 'Please Login Again!',
+      icon: 'warning',
+      background: '#0f172a',
+      color: '#fff'
+    });
     try {
       await API.patch(`/order/${id}/accept?partnerName=${myName}`);
-      alert("✅ Order Assigned to You!");
+      Swal.fire({
+        title: 'Order Assigned!',
+        text: 'Order Assigned to You Successfully.',
+        icon: 'success',
+        confirmButtonColor: '#10b981',
+        background: '#0f172a',
+        color: '#fff',
+        timer: 4000
+      });
       fetchOrders();
     } catch (err) {
-      alert("🚫 Too Late! Another partner already taken this order.");
+      Swal.fire({
+        title: 'Too Late!',
+        text: 'Another partner already taken this order.',
+        icon: 'error',
+        confirmButtonColor: '#e11d48',
+        background: '#0f172a',
+        color: '#fff'
+      });
       fetchOrders();
     }
   };
