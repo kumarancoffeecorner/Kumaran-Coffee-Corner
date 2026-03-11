@@ -13,7 +13,7 @@ const API = axios.create({
 
 // Step 2: SignalR Hub Connection Logic
 export const hubConnection = new HubConnectionBuilder()
-    .withUrl(BASE_URL.replace('/api', '/orderHub'))
+    .withUrl(BASE_URL.replace(/\/api\/?$/i, '/orderHub'))
     .configureLogging(LogLevel.Information)
     .withAutomaticReconnect()
     .build();
@@ -31,7 +31,7 @@ export const getImageUrl = (path) => {
 API.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
-        
+
         const isExternal = config.url.startsWith('http') && !config.url.includes('kumarancoffeecorner.tech');
 
         if (token && !isExternal) {
@@ -107,7 +107,7 @@ export default API;
 //     return Promise.reject(error);
 // });
 
-// // 🔥 ADD LOGIN API 
+// // 🔥 ADD LOGIN API
 // export const login = (credentials) => API.post('/auth/login', credentials);
 
 // // Menu (Product) APIs
