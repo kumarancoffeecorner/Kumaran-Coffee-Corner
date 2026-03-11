@@ -46,7 +46,7 @@ const MainLayout = ({ cart, addToCart, updateQuantity, cartCount, cartTotal, set
       {/* --- HERO SECTION --- */}
       <section id="home" className="relative h-screen flex items-center justify-center text-white text-left">
         <div className="absolute inset-0 z-0" style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url('/shopimg.jpg.png')`,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url('/shopimg.png')`,
           backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed'
         }} />
         <div className="relative z-10 text-center px-4">
